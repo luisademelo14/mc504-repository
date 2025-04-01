@@ -14,8 +14,6 @@ int serfs = 0;
 int isCaptain = 0;
 
 mutex mtx;
-mutex hackerQueueMutex;
-mutex serfQueueMutex;
 condition_variable hackerQueueCV;
 condition_variable serfQueueCV;
 mutex barrier_mutex;
@@ -24,10 +22,6 @@ int thread_count = 4;
 
 
 thread workers[NUM_THREADS];
-
-// Shared variables to control flow
-int numHackersWaiting = 0;
-int numSerfsWaiting = 0;
 
 void board(int id) {
     // Simulate boarding process
@@ -75,10 +69,11 @@ void* hacker(void* arg) {
     barrier_mutex.lock();
     counter++;
     cout << "Hacker " << id << " reached the barrier" << endl;
-    cout << "Counter: " << counter << endl;
+    cout << "Barrier counter: " << counter << endl;
     hackerQueueCV.notify_all();  // Notify all threads waiting on the barrier
     barrier_mutex.unlock();
 
+    
     while(counter < thread_count); // Busy wait until all threads reach this point
      
     if (isCaptain) {
