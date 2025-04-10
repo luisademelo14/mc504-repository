@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "iostream": "cpp",
+        "barrier": "cpp",
+        "pthread.h": "c"
+    }
+}
