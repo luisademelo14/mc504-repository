@@ -6,7 +6,6 @@
 
 int hackers = 0;
 int serfs = 0;
-int isCaptain = 0;
 sem_t sem;
 sem_t hackerQueue;
 sem_t serfQueue;
@@ -19,18 +18,63 @@ void board(int id){
 
 void rowBoat(int id){
     // Simulate rowing process
-    printf("%d Rowing boat with Captain...\n", id);
-    sleep(1); // Simulate time taken to row
+    printf("Rowing boat with Captain %d\n", id);
+}
+
+void* serf(void* arg){
+    int id = (int) arg;  // Cast to int
+    int isCaptain = 0;
+    sem_wait(&sem);
+    printf("Serf %d is waiting on queue\n", id);
+    serfs += 1;
+    if (serfs == 4){
+        printf("ALL SERFS\n");
+        // hackerQueue.signal(4);
+        for (int i = 0; i < 4; i++){
+            sem_post(&serfQueue);
+        }
+        serfs = 0;
+        printf("Serf %d is captain\n", id);
+        isCaptain = 1;
+    }
+    else if (hackers == 2 && serfs >= 2){
+        printf("SERF: METADE CADA!!\n");
+        sem_post(&hackerQueue);
+        sem_post(&hackerQueue);
+        sem_post(&serfQueue);
+        sem_post(&serfQueue);
+        // hackerQueue.signal(2);
+        // serfQueue.signal(2);
+        hackers -= 2;
+        serfs = 0;
+        isCaptain = 1;
+    }
+    else {
+        sem_post(&sem); // captain keeps the mutex
+    }
+    
+    sem_wait(&serfQueue);
+    board(id);
+
+    pthread_barrier_wait(&barrier_mutex);
+    // barrier.wait();
+    
+    if (isCaptain){
+        rowBoat(id);
+        sem_post(&sem);
+        // mutex.signal(); // captain releases the mutex
+    }
 }
 
 
 void* hacker(void* arg){
-    int id = *(int*)arg;  // Cast to int
-    
-    printf("Hacker %d wants to board\n", id);
+    int id = (int) arg;  // Cast to int
+    int isCaptain = 0;
     sem_wait(&sem);
+    printf("Hacker %d is waiting on queue\n", id);
     hackers += 1;
     if (hackers == 4){
+        printf("ALL HACKERS\n");
         // hackerQueue.signal(4);
         for (int i = 0; i < 4; i++){
             sem_post(&hackerQueue);
@@ -40,6 +84,7 @@ void* hacker(void* arg){
         isCaptain = 1;
     }
     else if (hackers == 2 && serfs >= 2){
+        printf("HACKER: METADE CADA!!\n");
         sem_post(&hackerQueue);
         sem_post(&hackerQueue);
         sem_post(&serfQueue);
@@ -53,7 +98,7 @@ void* hacker(void* arg){
     else {
         sem_post(&sem); // captain keeps the mutex
     }
-    printf("Hacker %d is waiting on queue\n", id);
+    
     sem_wait(&hackerQueue);
     board(id);
 
@@ -67,18 +112,22 @@ void* hacker(void* arg){
     }
 }
 
+#define NUM_THREADS 100
 int main(){
 
-    printf("Enter number of threads: ");
-    int n_threads = scanf("%d", &n_threads);
     sem_init(&sem, 0, 1);
-    sem_init(&hackerQueue, 0, 4);
-    sem_init(&serfQueue, 0, 4);
-    pthread_barrier_init(&barrier_mutex, NULL, n_threads);
+    sem_init(&hackerQueue, 0, 0);
+    sem_init(&serfQueue, 0, 0);
+    pthread_barrier_init(&barrier_mutex, NULL, 4);
 
-    pthread_t threads[n_threads];
-    for (int i = 0; i < n_threads; i++){
-        pthread_create(&threads[i], NULL, hacker, (void*)&i);
+    srandom(time(NULL));
+    pthread_t threads[NUM_THREADS];
+    for (int i = 0; i < NUM_THREADS; i++){
+        if(rand() % 2 == 0){
+            pthread_create(&threads[i], NULL, hacker, (void*) i);
+        } else {
+            pthread_create(&threads[i], NULL, serf, (void*) (i + 1));
+        }
     }
 
     return 0;
