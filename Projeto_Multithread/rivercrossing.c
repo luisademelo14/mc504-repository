@@ -126,7 +126,7 @@ int main(){
         if(rand() % 2 == 0){
             pthread_create(&threads[i], NULL, hacker, (void*) i);
         } else {
-            pthread_create(&threads[i], NULL, serf, (void*) (i + 1));
+            pthread_create(&threads[i], NULL, serf, (void*) i);
         }
     }
 
