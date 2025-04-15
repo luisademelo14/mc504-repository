@@ -10,10 +10,10 @@ descrição do problema:
 
 
 TO DO:
-[] fazer os personagens entrarem no barco quando ele for partir
-[] manter no "deque" os personagens que ainda não entraram no barco (atualmente estão sumindo)
-[] arrumar a posição dos bonecos conforme a visualização roda (eles vão ficando mais pra 
+[x] fazer os personagens entrarem no barco quando ele for partir
+[x] manter no "deque" os personagens que ainda não entraram no barco (atualmente estão sumindo)
+[x] arrumar a posição dos bonecos conforme a visualização roda (eles vão ficando mais pra 
 baixo, mas era pra assumirem posições mais pra cima, antes de entrar no barco)
-[] arrumar output da visualização "BOAT STATUS"
+[x] arrumar output da visualização "BOAT STATUS"
 [] roteiro do vídeo
 [] descrever conversas construtivas com o chatGPT
