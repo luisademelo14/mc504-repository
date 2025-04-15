@@ -38,19 +38,18 @@ HACKER_X = 0
 SERF_X = 0
 START_Y = 0  
 
+
 class Person:
     def __init__(self, type_, id_):
         self.type = type_
         self.id = id_
         self.symbol = HACKER_SYMBOL if self.type == "Hacker" else SERF_SYMBOL
+        self.position = None
 
-    def identifier(self):
-        return f"{self.type}#{self.id}"
 
 class Boat:
     def __init__(self):
-        self.passengers = []
-        self.captain_id = None
+        self.clear()
 
     def board(self, person: Person):
         self.passengers.append(person)
@@ -67,16 +66,18 @@ class Boat:
         boat[3] = f"   \\  {symbols[2]:^5}   {symbols[3]:^5}  /"
         return boat
 
+
 class RiverMap:
     def __init__(self):
         self.template = [list(row) for row in MAP_TEMPLATE]
 
-    def draw(self, passengers_positions, boat: Boat, rowing=False, boat_x=None):
+    def draw(self, waiting_list, boat: Boat, rowing=False, boat_x=None):
         map_copy = [row.copy() for row in self.template]
 
         # Draw people
-        for person, (y, x) in passengers_positions.items():
+        for person in waiting_list:
             symbol = person.symbol
+            x, y = person.position
             for i, c in enumerate(symbol):
                 if 0 <= x + i < len(map_copy[y]):
                     map_copy[y][x + i] = c
@@ -115,14 +116,13 @@ class RiverMap:
                     if 0 <= boat_x + j < len(row):
                         row[boat_x + j] = c
 
+
 class RiverCrossingSimulator:
     def __init__(self, filepath):
         self.filepath = filepath
         self.map = RiverMap()
         self.boat = Boat()
-        self.passengers_positions = {}
         self.waiting_list = []
-        self.current_y = START_Y
 
     def parse(self):
         with open(self.filepath, 'r') as f:
@@ -141,7 +141,7 @@ class RiverCrossingSimulator:
             if "is waiting on queue" in line:
                 self._add_to_queue(line)
 
-            self.map.draw(self.passengers_positions, self.boat, rowing=False)
+            self.map.draw(self.waiting_list, self.boat, rowing=False)
 
     def _handle_boarding(self, lines, start_idx):
         i = start_idx
@@ -152,7 +152,7 @@ class RiverCrossingSimulator:
                 self.boat.captain_id = int(re.findall(r"\d+", line)[0])
 
             if "rowing" in line.lower():
-                self.map.draw(self.passengers_positions, self.boat, boat_x=10, rowing=True)
+                self.map.draw(self.waiting_list, self.boat, boat_x=10, rowing=True)
                 time.sleep(0.6)
                 break
 
@@ -162,8 +162,7 @@ class RiverCrossingSimulator:
                 if person:
                     self.boat.board(person)
                     self.waiting_list.remove(person)
-                    self.passengers_positions.pop(person, None)
-                self.map.draw(self.passengers_positions, self.boat, boat_x=10)
+                self.map.draw(self.waiting_list, self.boat, boat_x=10)
 
             i += 1
         return i
@@ -172,7 +171,7 @@ class RiverCrossingSimulator:
         y = START_Y
         for person in self.waiting_list:
             x = HACKER_X if person.type == "Hacker" else SERF_X
-            self.passengers_positions[person] = (y, x)
+            person.position = (x, y)
             y += 1
 
     def _add_to_queue(self, line):
@@ -182,20 +181,10 @@ class RiverCrossingSimulator:
         self.waiting_list.append(person)
         self._update_queue_positions()
 
-    # def _add_to_queue(self, line):
-    #     type_ = "Serf" if "Serf" in line else "Hacker"
-    #     id_ = int(re.findall(r"\d+", line)[0])
-    #     person = Person(type_, id_)
-    #     self.waiting_list.append(person)
-
-    #     x = HACKER_X if type_ == "Hacker" else SERF_X
-    #     y = self.current_y % len(MAP_TEMPLATE)
-    #     self.passengers_positions[person] = (y, x)
-    #     self.current_y += 1
-
     def _cross_river(self):
         for boat_x in range(10, 45, 3):
-            self.map.draw(self.passengers_positions, self.boat, rowing=True, boat_x=boat_x)
+            self.map.draw(self.waiting_list, self.boat, rowing=True, boat_x=boat_x)
+
 
 if __name__ == "__main__":
     sim = RiverCrossingSimulator("exemplo_out.txt")
