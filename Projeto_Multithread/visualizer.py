@@ -6,13 +6,13 @@ HACKER_SYMBOL = "(^.^)"
 SERF_SYMBOL = "(◣_◢)"
 
 BOAT_ART = [
-    "         __/___",
-    "  ______/______\\_______",
-    "  \\                   /",
-    "   \\                 /",
-    " ~~ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾",
-    "  ~~~  ~~~   ~  ~ ~~~",
-    "     ~~~   ~~~",
+    "         __/___           ",
+    "        /      \\         ",
+    "  \\‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾/",
+    "   \\                   / ",
+    " ~~ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   ",
+    "  ~~~  ~~~   ~  ~ ~~~     ",
+    "     ~~~   ~~~            ",
 ]
 
 MAP_TEMPLATE = [
@@ -55,6 +55,7 @@ class Boat:
         self.passengers.append(person)
 
     def clear(self):
+        # TODO: animação de desembarque
         self.passengers = []
         self.captain_id = None
 
@@ -62,8 +63,21 @@ class Boat:
         symbols = [p.symbol for p in self.passengers]
         symbols = symbols[:4] + [""] * (4 - len(symbols))
         boat = BOAT_ART[:]
-        boat[2] = f"  \\   {symbols[0]:^5}   {symbols[1]:^5}   /"
-        boat[3] = f"   \\  {symbols[2]:^5}   {symbols[3]:^5}  /"
+        # Captain's hat
+        if self.passengers is not None:
+            if self.passengers[0].type == "Hacker":
+                boat[0] = "         __/___  __A__  "
+            else:
+                boat[0] = "         __/___  __A__  "
+        # All hackers
+        if all(p.type == "Hacker" for p in self.passengers) and len(self.passengers) == 4:
+            boat[1] = f"        /  ☠️   \\ {symbols[0]:^5}"
+        elif all(p.type == "Serf" for p in self.passengers) and len(self.passengers) == 4:
+            boat[1] = f"        /  🪟   \\ {symbols[0]:^5}"
+        else:
+            boat[1] = f"        /      \\ {symbols[0]:^5}"
+        # Rest of the crew
+        boat[3] = f"   \\ {symbols[1]:^5} {symbols[2]:^5} {symbols[3]:^5} /"
         return boat
 
 
