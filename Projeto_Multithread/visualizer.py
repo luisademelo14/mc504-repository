@@ -6,7 +6,7 @@ HACKER_SYMBOL = "(^.^)"
 SERF_SYMBOL = "(◣_◢)"
 
 BOAT_ART = [
-    "         __/___           ",
+    "         __\___           ",
     "        /      \\         ",
     "  \\‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾/",
     "   \\                   / ",
@@ -66,9 +66,9 @@ class Boat:
         # Captain's hat
         if self.passengers is not None:
             if self.passengers[0].type == "Hacker":
-                boat[0] = "         __/___  __A__  "
+                boat[0] = "         __\___  __☠️__  "
             else:
-                boat[0] = "         __/___  __A__  "
+                boat[0] = "         __\___  __M__  "
         # All hackers
         if all(p.type == "Hacker" for p in self.passengers) and len(self.passengers) == 4:
             boat[1] = f"        /  ☠️   \\ {symbols[0]:^5}"

@@ -11,7 +11,7 @@ baixo, mas era pra assumirem posições mais pra cima, antes de entrar no barco)
 
 - [x] Colocar chapéu no capitão
 
-- [ ] Fazer o barquinho desembarcar todos os tripulantes (um por vez)
+- [O] Fazer o barquinho desembarcar todos os tripulantes (um por vez)
 
 - [ ] Fazer o barco afundar se todos forem SERF
 
