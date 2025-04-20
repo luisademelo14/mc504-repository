@@ -16,22 +16,22 @@ BOAT_ART = [
 ]
 
 MAP_TEMPLATE = [
-    "________.,,,,,,.:*S%*                               ~         +%S*;,,.,,,,,,,,,,,,,,,,",
-    "________.,,,,.:?S*     ~                ~                   :S%;,.,,,,,,,,,,,,,,,,,,,,",
-    "________.,,,,*S*                                           :S+.,,,,,,,,,,,,,,,,,,,,,,,",
-    "________,,,,SS,                                           .?*.,,,,,,,,,,,,,,,,,,,,,,,,",
-    "________.,,%?                        ~                    ;S,,,,,,,,,,,,,,,,,,,,,,,,,,",
-    "________..*%,                                            .*?.,,,,,,,,,,,,,,,,,,,,,,,,,",
-    "________.,S:    ~                                         :S*,.,,,,,,,,,,,,,,,,,,,,,,,",
-    "________.*?.                                              .:SS+,,,,,,,,,,,,,,,,,,,,,,,",
-    "________.S:                                                :;;SS;.,,,,,,,,,,,,,,,,,,,,,",
-    "________:S                                                  +.,+S?:,,,,,,,,,,,,,,,,,,,,",
-    "________;%.                                                 *;.,,*S;,,,,,,,,,,,,,,,,,,,",
-    "________;%,                                                  *+,,.+S,,,,,,,,,,,,,,,,,,,",
-    "________:%;.                                                  **,,%;.,,,,,,,,,,,,,,,,,,",
-    "________+:S;.     ~                                            +?:S%+:,,,,,,,,,,,,,,,,,",
-    "________?.;S+                                            ~     .:?**%#?,,,,,,,,,,,,,,,,",
-    "________S,.:SS:.                             ~                    +?,,?S:,,,,,,,,,,,,,,",
+    "________.,,,,,,.:*S%*                               ~                     +%S*;,,.,,,,",
+    "________.,,,,.:?S*     ~                ~                               :S%;,.,,,,,,,,",
+    "________.,,,,*S*                                                       :S+.,,,,,,,,,,,",
+    "________,,,,SS,                                                       .?*.,,,,,,,,,,,,",
+    "________.,,%?                        ~                                ;S,,,,,,,,,,,,,,",
+    "________..*%,                                                        .*?.,,,,,,,,,,,,,",
+    "________.,S:    ~                                                     :S*,.,,,,,,,,,,,",
+    "________.*?.                                                          .:SS+,,,,,,,,,,,",
+    "________.S:                                                            :;;SS;.,,,,,,,,,",
+    "________:S                                                              +.,+S?:,,,,,,,,",
+    "________;%.                                                             *;.,,*S;,,,,,,,",
+    "________;%,                                                              *+,,.+S,,,,,,,",
+    "________:%;.                                                              **,,%;.,,,,,,",
+    "________+:S;.     ~                                                        +?:S%+:,,,,,",
+    "________?.;S+                                                        ~     .:?**%#?,,,,",
+    "________S,.:SS:.                             ~                                +?,,?S:,,",
 ]
 
 HACKER_X = 0
@@ -64,11 +64,11 @@ class Boat:
         symbols = symbols[:4] + [""] * (4 - len(symbols))
         boat = BOAT_ART[:]
         # Captain's hat
-        if self.passengers is not None:
+        if self.passengers is not None and len(self.passengers) > 0:
             if self.passengers[0].type == "Hacker":
-                boat[0] = "         __\___  __☠️__  "
-            else:
                 boat[0] = "         __\___  __M__  "
+            else:
+                boat[0] = "         __\___  __A__  "
         # All hackers
         if all(p.type == "Hacker" for p in self.passengers) and len(self.passengers) == 4:
             boat[1] = f"        /  ☠️   \\ {symbols[0]:^5}"
@@ -85,7 +85,7 @@ class RiverMap:
     def __init__(self):
         self.template = [list(row) for row in MAP_TEMPLATE]
 
-    def draw(self, waiting_list, boat: Boat, rowing=False, boat_x=None):
+    def draw(self, waiting_list, boat: Boat, rowing=False, boat_x=None, boat_y = 8):
         map_copy = [row.copy() for row in self.template]
 
         # Draw people
@@ -99,7 +99,7 @@ class RiverMap:
         # Draw boat
         if boat_x is not None:
             boat_art = boat.draw_boat()
-            self.animate_boat(map_copy, boat_art, boat_x)
+            self.animate_boat(map_copy, boat_art, boat_x, boat_y)
 
         os.system('cls' if os.name == 'nt' else 'clear')
         print("=" * 60)
@@ -121,8 +121,8 @@ class RiverMap:
         print("=" * 60)
         time.sleep(0.6)
 
-    def animate_boat(self, map, boat_art, boat_x):
-        boat_y = 8
+    def animate_boat(self, map, boat_art, boat_x, boat_y=8):
+        # boat_y = 8
         for i, line in enumerate(boat_art):
             if boat_y + i < len(map):
                 row = map[boat_y + i]
@@ -150,6 +150,7 @@ class RiverCrossingSimulator:
                 self._update_queue_positions()
                 self._cross_river()
                 self.boat.clear()
+                self._new_boat()
                 continue
 
             if "is waiting on queue" in line:
@@ -180,6 +181,14 @@ class RiverCrossingSimulator:
 
             i += 1
         return i
+    
+    def _handle_disembark(self, line):
+        person_id = int(line.split()[0])
+        person = next((p for p in self.boat.passengers if p.id == person_id), None)
+        if person:
+            self.boat.passengers.remove(person)
+            self.map.draw(self.waiting_list, self.boat, boat_x=10)
+        self.map.draw(self.waiting_list, self.boat, boat_x=10)
 
     def _update_queue_positions(self):
         y = START_Y
@@ -198,6 +207,14 @@ class RiverCrossingSimulator:
     def _cross_river(self):
         for boat_x in range(10, 45, 3):
             self.map.draw(self.waiting_list, self.boat, rowing=True, boat_x=boat_x)
+    
+    def _new_boat(self):
+        for boat_y in range(8, -1, -1):
+            self.map.draw(self.waiting_list, self.boat, boat_x=45, boat_y=boat_y)
+        for boat_x in range(45, 9, -3):
+            self.map.draw(self.waiting_list, self.boat, rowing=True, boat_x=boat_x, boat_y=0)
+        for boat_y in range(0, 9):
+            self.map.draw(self.waiting_list, self.boat, boat_x=10, boat_y=boat_y)
 
 
 if __name__ == "__main__":
