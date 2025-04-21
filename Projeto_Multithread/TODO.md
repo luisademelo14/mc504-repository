@@ -11,11 +11,11 @@ baixo, mas era pra assumirem posições mais pra cima, antes de entrar no barco)
 
 - [x] Colocar chapéu no capitão
 
-- [O] Fazer o barquinho desembarcar todos os tripulantes (um por vez)
+- [-] Fazer o barquinho desembarcar todos os tripulantes (um por vez)
 
-- [ ] Fazer o barco afundar se todos forem SERF
+- [-] Fazer o barco afundar se todos forem SERF
 
-- [ ] Os barquinhos não devem sumir ou só spawnar
+- [X] Os barquinhos não devem sumir ou só spawnar
     - Ao desembarcar todos os tripulantes, o barquinho deve ir embora
     - O novo barquinho deve vir de cima do rio até parar no pier
     - Os dois barquinhos (chegando e indo embora) devem se mover simultaneamente

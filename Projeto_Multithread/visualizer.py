@@ -16,14 +16,14 @@ BOAT_ART = [
 ]
 
 MAP_TEMPLATE = [
-    "________.,,,,,,.:*S%*                               ~                     +%S*;,,.,,,,",
-    "________.,,,,.:?S*     ~                ~                               :S%;,.,,,,,,,,",
-    "________.,,,,*S*                                                       :S+.,,,,,,,,,,,",
-    "________,,,,SS,                                                       .?*.,,,,,,,,,,,,",
-    "________.,,%?                        ~                                ;S,,,,,,,,,,,,,,",
-    "________..*%,                                                        .*?.,,,,,,,,,,,,,",
-    "________.,S:    ~                                                     :S*,.,,,,,,,,,,,",
-    "________.*?.                                                          .:SS+,,,,,,,,,,,",
+    "________.,,,,,,.:*S%*                               ~                     +%S*;,,.,,,,,",
+    "________.,,,,.:?S*     ~                ~                               :S%;,.,,,,,,,,,",
+    "________.,,,,*S*                                                       :S+.,,,,,,,,,,,,",
+    "________,,,,SS,                                                       .?*.,,,,,,,,,,,,,",
+    "________.,,%?                        ~                                ;S,,,,,,,,,,,,,,,",
+    "________..*%,                                                        .*?.,,,,,,,,,,,,,,",
+    "________.,S:    ~                                                     :S*,.,,,,,,,,,,,,",
+    "________.*?.                                                          .:SS+,,,,,,,,,,,,",
     "________.S:                                                            :;;SS;.,,,,,,,,,",
     "________:S                                                              +.,+S?:,,,,,,,,",
     "________;%.                                                             *;.,,*S;,,,,,,,",
@@ -58,6 +58,7 @@ class Boat:
         # TODO: animação de desembarque
         self.passengers = []
         self.captain_id = None
+        self.automatic = False
 
     def draw_boat(self):
         symbols = [p.symbol for p in self.passengers]
@@ -74,10 +75,13 @@ class Boat:
             boat[1] = f"        /  ☠️   \\ {symbols[0]:^5}"
         elif all(p.type == "Serf" for p in self.passengers) and len(self.passengers) == 4:
             boat[1] = f"        /  🪟   \\ {symbols[0]:^5}"
+        elif self.automatic:
+            boat[1] = f"        /  🦆   \\   {chr(0)}{chr(0)}🤖"
         else:
             boat[1] = f"        /      \\ {symbols[0]:^5}"
         # Rest of the crew
         boat[3] = f"   \\ {symbols[1]:^5} {symbols[2]:^5} {symbols[3]:^5} /"
+        
         return boat
 
 
@@ -156,7 +160,7 @@ class RiverCrossingSimulator:
             if "is waiting on queue" in line:
                 self._add_to_queue(line)
 
-            self.map.draw(self.waiting_list, self.boat, rowing=False)
+            self.map.draw(self.waiting_list, self.boat, boat_x=10, rowing=False)
 
     def _handle_boarding(self, lines, start_idx):
         i = start_idx
@@ -209,13 +213,14 @@ class RiverCrossingSimulator:
             self.map.draw(self.waiting_list, self.boat, rowing=True, boat_x=boat_x)
     
     def _new_boat(self):
+        self.boat.automatic = True
         for boat_y in range(8, -1, -1):
             self.map.draw(self.waiting_list, self.boat, boat_x=45, boat_y=boat_y)
         for boat_x in range(45, 9, -3):
-            self.map.draw(self.waiting_list, self.boat, rowing=True, boat_x=boat_x, boat_y=0)
+            self.map.draw(self.waiting_list, self.boat, rowing=False, boat_x=boat_x, boat_y=0)
         for boat_y in range(0, 9):
             self.map.draw(self.waiting_list, self.boat, boat_x=10, boat_y=boat_y)
-
+        self.boat.clear()
 
 if __name__ == "__main__":
     sim = RiverCrossingSimulator("exemplo_out.txt")
