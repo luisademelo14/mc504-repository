@@ -7,13 +7,3 @@ descrição do problema:
 • deve-se garantir que todas as 4 threads das pessoas que entram no barco invocam a função board antes que as próximas 4 threads façam isso
 • depois que todas as 4 threads invocarem a função board, apenas uma delas deve chamar a função rowBoat, indicando qua aquela thread vai pegar os remos do barco (não importa qual thread fará isso)
 • assumir que o tráfego é em apenas uma direção
-
-
-TO DO:
-[] fazer os personagens entrarem no barco quando ele for partir
-[] manter no "deque" os personagens que ainda não entraram no barco (atualmente estão sumindo)
-[] arrumar a posição dos bonecos conforme a visualização roda (eles vão ficando mais pra 
-baixo, mas era pra assumirem posições mais pra cima, antes de entrar no barco)
-[] arrumar output da visualização "BOAT STATUS"
-[] roteiro do vídeo
-[] descrever conversas construtivas com o chatGPT
