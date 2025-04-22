@@ -125,7 +125,7 @@ class RiverMap:
         if returning:
             print("🤖 Boat is RETURNING!\n")
         print("=" * 60)
-        time.sleep(0.6)
+        time.sleep(0.4 if not returning else 0.1)
 
     def animate_boat(self, map, boat_art, boat_x, boat_y=8):
         # boat_y = 8
@@ -220,7 +220,7 @@ class RiverCrossingSimulator:
         self.boat.automatic = True
         for boat_y in range(8, -1, -1):
             self.map.draw(self.waiting_list, self.boat, boat_x=45, boat_y=boat_y, returning=True)
-        for boat_x in range(45, 9, -3):
+        for boat_x in range(45, 9, -2):
             self.map.draw(self.waiting_list, self.boat, rowing=False, boat_x=boat_x, boat_y=0, returning=True)
         for boat_y in range(0, 9):
             self.map.draw(self.waiting_list, self.boat, boat_x=10, boat_y=boat_y, returning=True)
