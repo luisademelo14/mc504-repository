@@ -89,7 +89,7 @@ class RiverMap:
     def __init__(self):
         self.template = [list(row) for row in MAP_TEMPLATE]
 
-    def draw(self, waiting_list, boat: Boat, rowing=False, boat_x=None, boat_y = 8):
+    def draw(self, waiting_list, boat: Boat, rowing=False, boat_x=None, boat_y = 8, returning=False):
         map_copy = [row.copy() for row in self.template]
 
         # Draw people
@@ -122,6 +122,8 @@ class RiverMap:
             print(f"👨‍✈️ Captain: #{boat.captain_id}")
         if rowing:
             print("🚣 Boat is ROWING!\n")
+        if returning:
+            print("🤖 Boat is RETURNING!\n")
         print("=" * 60)
         time.sleep(0.6)
 
@@ -153,6 +155,7 @@ class RiverCrossingSimulator:
                 idx = self._handle_boarding(lines, idx + 1)
                 self._update_queue_positions()
                 self._cross_river()
+                self._handle_disembark()
                 self.boat.clear()
                 self._new_boat()
                 continue
@@ -186,13 +189,14 @@ class RiverCrossingSimulator:
             i += 1
         return i
     
-    def _handle_disembark(self, line):
-        person_id = int(line.split()[0])
-        person = next((p for p in self.boat.passengers if p.id == person_id), None)
-        if person:
-            self.boat.passengers.remove(person)
-            self.map.draw(self.waiting_list, self.boat, boat_x=10)
-        self.map.draw(self.waiting_list, self.boat, boat_x=10)
+    def _handle_disembark(self):
+        for i in range(3, -1, -1):
+            if self.boat.passengers[i] is not None:
+                person = self.boat.passengers[i]
+                self.boat.passengers.remove(person)
+                self.map.draw(self.waiting_list, self.boat, boat_x=45)
+            self.map.draw(self.waiting_list, self.boat, boat_x=45)
+        
 
     def _update_queue_positions(self):
         y = START_Y
@@ -215,11 +219,11 @@ class RiverCrossingSimulator:
     def _new_boat(self):
         self.boat.automatic = True
         for boat_y in range(8, -1, -1):
-            self.map.draw(self.waiting_list, self.boat, boat_x=45, boat_y=boat_y)
+            self.map.draw(self.waiting_list, self.boat, boat_x=45, boat_y=boat_y, returning=True)
         for boat_x in range(45, 9, -3):
-            self.map.draw(self.waiting_list, self.boat, rowing=False, boat_x=boat_x, boat_y=0)
+            self.map.draw(self.waiting_list, self.boat, rowing=False, boat_x=boat_x, boat_y=0, returning=True)
         for boat_y in range(0, 9):
-            self.map.draw(self.waiting_list, self.boat, boat_x=10, boat_y=boat_y)
+            self.map.draw(self.waiting_list, self.boat, boat_x=10, boat_y=boat_y, returning=True)
         self.boat.clear()
 
 if __name__ == "__main__":
