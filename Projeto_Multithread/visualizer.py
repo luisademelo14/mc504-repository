@@ -40,7 +40,9 @@ START_Y = 0
 
 
 class Person:
-    def __init__(self, type_, id_):
+    """ Class representing a person in the river crossing simulation."""
+    def __init__(self, type_: str, id_: int) -> None:
+        """ Initialize a person with a type and ID. """
         self.type = type_
         self.id = id_
         self.symbol = HACKER_SYMBOL if self.type == "Hacker" else SERF_SYMBOL
@@ -48,28 +50,37 @@ class Person:
 
 
 class Boat:
-    def __init__(self):
+    """ Class representing the boat in the river crossing simulation."""
+    def __init__(self) -> None:
+        """ Initialize the boat with no passengers and no captain. """
         self.clear()
 
-    def board(self, person: Person):
+    def board(self, person: Person) -> None:
+        """ Board a person onto the boat. """
         self.passengers.append(person)
 
-    def clear(self):
-        # TODO: animação de desembarque
+    def clear(self) -> None:
+        """ Clear the boat's passengers and captain. """
         self.passengers = []
         self.captain_id = None
         self.automatic = False
 
-    def draw_boat(self):
+    def draw_boat(self) -> list:
+        """
+        Draw the boat with its passengers.
+        Returns a list of strings representing the boat's ASCII art.
+        """
         symbols = [p.symbol for p in self.passengers]
         symbols = symbols[:4] + [""] * (4 - len(symbols))
         boat = BOAT_ART[:]
+
         # Captain's hat
         if self.passengers is not None and len(self.passengers) > 0:
             if self.passengers[0].type == "Hacker":
                 boat[0] = "         __\___  __M__  "
             else:
                 boat[0] = "         __\___  __A__  "
+
         # All hackers
         if all(p.type == "Hacker" for p in self.passengers) and len(self.passengers) == 4:
             boat[1] = f"        /  ☠️   \\ {symbols[0]:^5}"
@@ -79,17 +90,27 @@ class Boat:
             boat[1] = f"        /  🦆   \\   {chr(0)}{chr(0)}🤖"
         else:
             boat[1] = f"        /      \\ {symbols[0]:^5}"
+
         # Rest of the crew
         boat[3] = f"   \\ {symbols[1]:^5} {symbols[2]:^5} {symbols[3]:^5} /"
-        
+
         return boat
 
 
 class RiverMap:
-    def __init__(self):
+    """ Class representing the river map in the simulation."""
+    def __init__(self) -> None:
+        """ Initialize the river map with a template. """
         self.template = [list(row) for row in MAP_TEMPLATE]
 
-    def draw(self, waiting_list, boat: Boat, rowing=False, boat_x=None, boat_y = 8, returning=False):
+    def draw(self,
+             waiting_list: list,
+             boat: Boat,
+             rowing: bool = False,
+             boat_x: int = None,
+             boat_y: int = 8,
+             returning: bool = False) -> None:
+        """ Draw the river map with the current state of the simulation. """
         map_copy = [row.copy() for row in self.template]
 
         # Draw people
@@ -127,8 +148,8 @@ class RiverMap:
         print("=" * 60)
         time.sleep(0.4 if not returning else 0.1)
 
-    def animate_boat(self, map, boat_art, boat_x, boat_y=8):
-        # boat_y = 8
+    def animate_boat(self, map: list, boat_art: list, boat_x: int, boat_y: int = 8) -> None:
+        """ Animate the boat on the map. """
         for i, line in enumerate(boat_art):
             if boat_y + i < len(map):
                 row = map[boat_y + i]
@@ -138,13 +159,16 @@ class RiverMap:
 
 
 class RiverCrossingSimulator:
-    def __init__(self, filepath):
+    """ Class representing the river crossing simulation. """
+    def __init__(self, filepath: str) -> None:
+        """ Initialize the simulator with a file path. """
         self.filepath = filepath
         self.map = RiverMap()
         self.boat = Boat()
         self.waiting_list = []
 
-    def parse(self):
+    def parse(self) -> None:
+        """ Parse the log file and simulate the river crossing. """
         with open(self.filepath, 'r') as f:
             lines = f.readlines()
 
@@ -165,7 +189,8 @@ class RiverCrossingSimulator:
 
             self.map.draw(self.waiting_list, self.boat, boat_x=10, rowing=False)
 
-    def _handle_boarding(self, lines, start_idx):
+    def _handle_boarding(self, lines: list, start_idx: int) -> int:
+        """ Handle the boarding process of the boat. Return the next index to process. """
         i = start_idx
         while i < len(lines):
             line = lines[i].strip()
@@ -188,35 +213,39 @@ class RiverCrossingSimulator:
 
             i += 1
         return i
-    
-    def _handle_disembark(self):
+
+    def _handle_disembark(self) -> None:
+        """ Handle the disembarking process of the boat. """
         for i in range(3, -1, -1):
             if self.boat.passengers[i] is not None:
                 person = self.boat.passengers[i]
                 self.boat.passengers.remove(person)
                 self.map.draw(self.waiting_list, self.boat, boat_x=45)
             self.map.draw(self.waiting_list, self.boat, boat_x=45)
-        
 
-    def _update_queue_positions(self):
+    def _update_queue_positions(self) -> None:
+        """ Update the positions of people in the queue. """
         y = START_Y
         for person in self.waiting_list:
             x = HACKER_X if person.type == "Hacker" else SERF_X
             person.position = (x, y)
             y += 1
 
-    def _add_to_queue(self, line):
+    def _add_to_queue(self, line: str) -> None:
+        """ Add a person to the waiting list based on the log line. """
         type_ = "Serf" if "Serf" in line else "Hacker"
         id_ = int(re.findall(r"\d+", line)[0])
         person = Person(type_, id_)
         self.waiting_list.append(person)
         self._update_queue_positions()
 
-    def _cross_river(self):
+    def _cross_river(self) -> None:
+        """ Simulate the crossing of the river. """
         for boat_x in range(10, 45, 3):
             self.map.draw(self.waiting_list, self.boat, rowing=True, boat_x=boat_x)
-    
-    def _new_boat(self):
+
+    def _new_boat(self) -> None:
+        """ Simulate the arrival of a new boat. """
         self.boat.automatic = True
         for boat_y in range(8, -1, -1):
             self.map.draw(self.waiting_list, self.boat, boat_x=45, boat_y=boat_y, returning=True)
