@@ -227,5 +227,11 @@ class RiverCrossingSimulator:
         self.boat.clear()
 
 if __name__ == "__main__":
-    sim = RiverCrossingSimulator("exemplo_out.txt")
+    try:
+        sim = RiverCrossingSimulator("log.txt")
+    except FileNotFoundError:
+        sim = RiverCrossingSimulator("exemplo_out.txt")
+    except Exception as e:
+        print(f"Error: {e}")
+        exit(1)
     sim.parse()
