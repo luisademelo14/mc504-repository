@@ -1,4 +1,41 @@
+ROTEIRO GERAL
+
 1) mostrar os arquivos modificados e com as chamadas rodando
 2) explicar como foi o processo de seguir o tutorial do LKCamp, adaptando para o nosso ambiente
 3) explicar o programa de teste desenvolvido
 4) explicar as funcionalidades desenvolvidas (get e set de uma variável no kernel)
+
+-----------------------------------------------
+
+ROTEIRO DETALHADO
+
+1) slide com nome do projeto e nossos nomes
+- apresentação do grupo e breve descrição da proposta do projeto
+
+2) print do tutorial de booting do lkcamp
+
+3) print de tutorial de system call do lkcamp
+- falar que tivemos problema com o comando "virtme-run", pois nosso ambiente
+não estava reconhecendo tal comando
+- conseguimos contornar o problema com auxílio do ChatGPT, monitoria, e demais pesquisas na internet
+- seguimos o tutorial do lkcamp para criar uma syscall memcpy (alteramos os arquivos necessários e fizemos o código para teste)
+- deu tudo certo com esse tutorial da memcpy, então seguimos para a implementação das nossas próprias syscalls
+
+4) mostrar a modificação no arquivo arch/x86/entry/syscalls/syscall_64.tbl
+- define o número da syscall
+
+5) mostrar a modificação no arquivo include/linux/syscalls.h
+- define a assinatura de função da syscall
+
+6) mostrar a modificação no arquivo include/uapi/asm-generic/unistd.h
+- junta o número e a assinatura de função da syscall
+
+7) mostrar a modificação no arquivo kernel/sys_ni.c
+- essa alteração foi pra registrar a syscall
+
+8) mostrar o arquivo criado para as syscalls get e set kernel/get_set.c
+- explicar o que elas estão fazendo
+
+9) mostrar arquivo de teste (no ambiente de usuário) que testa as syscalls
+- rodar o código e descrever as mensagens
+- humor: erro que dá sucesso (tá em uma das mensagens sobre a função set)
